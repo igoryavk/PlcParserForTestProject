@@ -64,11 +64,14 @@ class OpenPlcParser():
             xml=Soup(content,"xml")
             for stub in stubs:
                 # print(type(stub))
-                print(Fore.WHITE+f"{stub['name']}=={xml.pou['name']}")
-                if stub["name"]==xml.pou["name"] and stub["name"] is not None:
+                # print(Fore.WHITE+f"{stub['name']}=={xml.pou['name']}")
+                #if type(stub["name"]) is not None and type(xml.pou['name'] is not None):
+                print(f"1:{type(stub['name'])} 2:{type(xml.pou['name'])}")
+                if stub["name"]==xml.pou["name"]:
                     print("Здесь все ломается")
-                    # parent=stub.parent
-                    # parent.append(xml)
+                    parent=stub.parent
+                    parent.append(xml)
+
 
         with open(f"D://parse//output.xml",mode="w",encoding="utf-8") as output_file:
             output_file.write(str(result_xml))
@@ -83,6 +86,50 @@ class OpenPlcParser():
         print(stubs.__len__())
         print(listdir("D://parse//POUS").__len__())
 
+    def buildNewXml(self):
+        with open("D://parse//clear.xml", mode="r", encoding="utf-8") as clear_file:
+            content = clear_file.read()
+            clear_file.close()
+        result_xml = Soup(content, "xml")
+
+        stubs = result_xml.find_all("stub")
+
+        for stub in stubs:
+            print(stub['name'])
+            for filename in listdir("D://parse//POUS"):
+                with open(f"D://parse//POUS//{filename}", mode="r") as tag_file:
+                    content = tag_file.read()
+                    tag_file.close()
+                xml = Soup(content, "xml")
+                if stub["name"] == xml.pou["name"]:
+                    parent = stub.parent
+                    parent.append(xml)
+
+        with open(f"D://parse//output.xml",mode="w",encoding="utf-8") as output_file:
+            output_file.write(str(result_xml))
+            output_file.flush()
+            output_file.close()
+
+    def clearStubs(self):
+        with open("D://parse//output.xml", mode="r", encoding="utf-8") as clear_file:
+            content = clear_file.read()
+            clear_file.close()
+        result_xml = Soup(content, "xml")
+        stubs = result_xml.find_all("stub")
+
+        for stub in stubs:
+            stub.decompose()
+
+        with open(f"D://parse//output.xml", mode="w", encoding="utf-8") as output_file:
+            output_file.write(str(result_xml))
+            output_file.flush()
+            output_file.close()
+
+
+
+
+
+
 
 
 if __name__ == '__main__':
@@ -90,6 +137,8 @@ if __name__ == '__main__':
     #parser.showStructure()
     #parser.findElements()
     #parser.saveAll()
-    parser.parseAll()
+    #parser.parseAll()
+    parser.buildNewXml()
+    parser.clearStubs()
     #parser.countObjects()
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
